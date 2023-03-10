@@ -31,9 +31,6 @@
     "discord-player"
   ],
   "author": "Takiyo",
-  "files": [
-    "dist/**/**/*"
-  ],
   "license": "ISC",
   "devDependencies": {
     "@types/events": "^3.0.0",
