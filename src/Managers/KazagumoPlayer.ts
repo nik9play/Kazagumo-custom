@@ -100,7 +100,7 @@ export class KazagumoPlayer {
 
     this.search = (typeof this.options.searchWithSameNode === 'boolean' ? this.options.searchWithSameNode : true)
       ? (query: string, opt?: KazagumoSearchOptions) =>
-        kazagumo.search.bind(kazagumo)(query, opt ? { ...opt, nodeName: this.shoukaku.node.name } : undefined)
+          kazagumo.search.bind(kazagumo)(query, opt ? { ...opt, nodeName: this.shoukaku.node.name } : undefined)
       : kazagumo.search.bind(kazagumo);
 
     this.shoukaku.on('start', () => {
@@ -334,7 +334,7 @@ export class KazagumoPlayer {
       position = Math.max(Math.min(position, this.queue.current.length ?? 0), 0);
 
     this.queue.current.position = position;
-    await this.shoukaku.seekTo(position)
+    await this.shoukaku.seekTo(position);
 
     return this;
   }
@@ -348,7 +348,7 @@ export class KazagumoPlayer {
     if (this.state === PlayerState.DESTROYED) throw new KazagumoError(1, 'Player is already destroyed');
     if (isNaN(volume)) throw new KazagumoError(1, 'volume must be a number');
 
-    await this.shoukaku.setVolume(volume)
+    await this.shoukaku.setVolume(volume);
 
     return this;
   }
