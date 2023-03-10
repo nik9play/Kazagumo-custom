@@ -85,10 +85,10 @@ export interface CreatePlayerOptions {
 }
 
 export interface RawTrack {
-  track: string;
+  encoded: string;
   info: {
     title: string;
-    uri: string;
+    uri?: string;
     identifier: string;
     sourceName: string;
     isSeekable: boolean;

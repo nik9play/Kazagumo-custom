@@ -6,7 +6,7 @@ import {
   WebSocketClosedEvent,
   TrackExceptionEvent,
   PlayerUpdate,
-  Filters,
+  FilterOptions,
   TrackStuckEvent,
 } from 'shoukaku';
 import {
@@ -100,7 +100,7 @@ export class KazagumoPlayer {
 
     this.search = (typeof this.options.searchWithSameNode === 'boolean' ? this.options.searchWithSameNode : true)
       ? (query: string, opt?: KazagumoSearchOptions) =>
-          kazagumo.search.bind(kazagumo)(query, opt ? { ...opt, nodeName: this.shoukaku.node.name } : undefined)
+        kazagumo.search.bind(kazagumo)(query, opt ? { ...opt, nodeName: this.shoukaku.node.name } : undefined)
       : kazagumo.search.bind(kazagumo);
 
     this.shoukaku.on('start', () => {
@@ -157,7 +157,7 @@ export class KazagumoPlayer {
   /**
    * Get volume
    */
-  public get volume(): number {
+  public get volume(): number | undefined {
     return this.shoukaku.filters.volume;
   }
 
@@ -171,7 +171,7 @@ export class KazagumoPlayer {
   /**
    * Get filters
    */
-  public get filters(): Filters {
+  public get filters(): FilterOptions {
     return this.shoukaku.filters;
   }
 
@@ -179,9 +179,9 @@ export class KazagumoPlayer {
     return this.shoukaku.node;
   }
 
-  private send(...args: any): void {
-    this.node.queue.add(...args);
-  }
+  // private send(...args: any): void {
+  //   this.node.queue.add(...args);
+  // }
 
   /**
    * Pause the player
@@ -298,7 +298,7 @@ export class KazagumoPlayer {
       return this;
     }
 
-    const playOptions = { track: current.track, options: {} };
+    const playOptions = { track: current.encoded, options: {} };
     if (options) playOptions.options = { ...options, noReplace: false };
     else playOptions.options = { noReplace: false };
 
@@ -322,7 +322,7 @@ export class KazagumoPlayer {
   /**
    *
    */
-  public seek(position: number): KazagumoPlayer {
+  public async seek(position: number): Promise<KazagumoPlayer> {
     if (this.state === PlayerState.DESTROYED) throw new KazagumoError(1, 'Player is already destroyed');
     if (!this.queue.current) throw new KazagumoError(1, "Player has no current track in it's queue");
     if (!this.queue.current.isSeekable) throw new KazagumoError(1, "The current track isn't seekable");
@@ -334,11 +334,7 @@ export class KazagumoPlayer {
       position = Math.max(Math.min(position, this.queue.current.length ?? 0), 0);
 
     this.queue.current.position = position;
-    this.send({
-      op: 'seek',
-      guildId: this.guildId,
-      position,
-    });
+    await this.shoukaku.seekTo(position)
 
     return this;
   }
@@ -348,17 +344,11 @@ export class KazagumoPlayer {
    * @param volume Volume
    * @returns KazagumoPlayer
    */
-  public setVolume(volume: number): KazagumoPlayer {
+  public async setVolume(volume: number): Promise<KazagumoPlayer> {
     if (this.state === PlayerState.DESTROYED) throw new KazagumoError(1, 'Player is already destroyed');
     if (isNaN(volume)) throw new KazagumoError(1, 'volume must be a number');
 
-    this.shoukaku.filters.volume = volume / 100;
-
-    this.send({
-      op: 'volume',
-      guildId: this.guildId,
-      volume: this.shoukaku.filters.volume * 100,
-    });
+    await this.shoukaku.setVolume(volume)
 
     return this;
   }

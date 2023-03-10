@@ -6,7 +6,8 @@ export class KazagumoUtils {
     if ((track as Track).info) return track as Track;
     track = track as KazagumoTrack;
     return {
-      track: track.track,
+      track: track.encoded,
+      encoded: track.encoded,
       info: {
         isSeekable: track.isSeekable,
         isStream: track.isStream,

@@ -23,13 +23,13 @@ export class KazagumoTrack {
   public requester: unknown | undefined;
 
   /** Track's Base64 */
-  public track: string;
+  public encoded: string;
   /** Track's source */
   public sourceName: string;
   /** Track's title */
   public title: string;
   /** Track's URI */
-  public uri: string;
+  public uri: string | undefined;
   /** Track's identifier */
   public identifier: string;
   /** Whether the track is seekable */
@@ -45,14 +45,14 @@ export class KazagumoTrack {
   /** Track's thumbnail, if available */
   public thumbnail: string | undefined;
   /** The YouTube/soundcloud URI for spotify and other unsupported source */
-  public realUri: string | null;
+  public realUri: string | null | undefined;
 
   public resolvedBySource: boolean = false;
 
   constructor(raw: RawTrack, requester: unknown) {
     this.kazagumo = undefined;
 
-    this.track = raw.track;
+    this.encoded = raw.encoded;
     this.sourceName = raw.info.sourceName;
     this.title = raw.info.title;
     this.uri = raw.info.uri;
@@ -76,7 +76,7 @@ export class KazagumoTrack {
    */
   public getRaw(): RawTrack {
     return {
-      track: this.track,
+      encoded: this.encoded,
       info: {
         title: this.title,
         uri: this.uri,
@@ -100,9 +100,8 @@ export class KazagumoTrack {
   setKazagumo(kazagumo: Kazagumo): KazagumoTrack {
     this.kazagumo = kazagumo;
     if (this.sourceName === 'youtube' && this.identifier)
-      this.thumbnail = `https://img.youtube.com/vi/${this.identifier}/${
-        kazagumo.KazagumoOptions.defaultYoutubeThumbnail ?? 'hqdefault'
-      }.jpg`;
+      this.thumbnail = `https://img.youtube.com/vi/${this.identifier}/${kazagumo.KazagumoOptions.defaultYoutubeThumbnail ?? 'hqdefault'
+        }.jpg`;
 
     return this;
   }
@@ -113,7 +112,7 @@ export class KazagumoTrack {
   get readyToPlay(): boolean {
     return (
       this.kazagumo !== undefined &&
-      !!this.track &&
+      !!this.encoded &&
       !!this.sourceName &&
       !!this.identifier &&
       !!this.author &&
@@ -149,7 +148,7 @@ export class KazagumoTrack {
     const result = await this.getTrack(options?.player ?? null);
     if (!result) throw new KazagumoError(2, 'No results found');
 
-    this.track = result.track;
+    this.encoded = result.encoded;
     this.realUri = result.info.uri;
     this.length = result.info.length;
 
