@@ -141,7 +141,10 @@ export class KazagumoTrack {
 
     if (!forceResolve && this.readyToPlay) return this;
     if (resolveSource && this.resolvedBySource) return this;
-    if (resolveSource) this.resolvedBySource = true;
+    if (resolveSource) {
+      this.resolvedBySource = true;
+      return this;
+    }
 
     this.kazagumo.emit(Events.Debug, `Resolving ${this.sourceName} track ${this.title}; Source: ${this.sourceName}`);
 
