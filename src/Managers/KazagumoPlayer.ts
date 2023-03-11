@@ -296,9 +296,17 @@ export class KazagumoPlayer {
         noReplace: false,
         playerOptions
       });
-      if (player?.track)
+      if (player?.track) {
         this.shoukaku.track = player.track?.encoded;
-      else {
+        current.encoded = player.track.encoded
+        current.realUri = player.track.info.uri
+        current.length = player.track.info.length
+        current.identifier = player.track.info.identifier
+        current.isSeekable = player.track.info.isSeekable
+        current.length = player.track.info.length
+        current.isStream = player.track.info.isStream
+        current.uri = player.track.info.uri
+      } else {
         this.emit(Events.PlayerResolveError, this, current, errorMessage);
         this.emit(Events.Debug, `Player ${this.guildId} resolve error: ${errorMessage}`);
         this.queue.current = null;
@@ -308,6 +316,7 @@ export class KazagumoPlayer {
       if (playerOptions.paused) this.shoukaku.paused = playerOptions.paused;
       if (playerOptions.position) this.shoukaku.position = playerOptions.position;
       if (playerOptions.volume) this.shoukaku.filters.volume = playerOptions.volume;
+      return this;
     }
 
     const resolveResult = await current.resolve({ player: this as KazagumoPlayer }).catch((e) => {
