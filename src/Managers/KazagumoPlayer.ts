@@ -8,6 +8,7 @@ import {
   PlayerUpdate,
   FilterOptions,
   TrackStuckEvent,
+  UpdatePlayerOptions,
 } from 'shoukaku';
 import {
   KazagumoError,
@@ -100,7 +101,7 @@ export class KazagumoPlayer {
 
     this.search = (typeof this.options.searchWithSameNode === 'boolean' ? this.options.searchWithSameNode : true)
       ? (query: string, opt?: KazagumoSearchOptions) =>
-          kazagumo.search.bind(kazagumo)(query, opt ? { ...opt, nodeName: this.shoukaku.node.name } : undefined)
+        kazagumo.search.bind(kazagumo)(query, opt ? { ...opt, nodeName: this.shoukaku.node.name } : undefined)
       : kazagumo.search.bind(kazagumo);
 
     this.shoukaku.on('start', () => {
@@ -285,6 +286,30 @@ export class KazagumoPlayer {
 
     let errorMessage: string | undefined;
 
+    if (current.identifier) {
+      const playerOptions: UpdatePlayerOptions = {
+        identifier: current.identifier,
+        ...options
+      };
+      const player = await this.node.rest.updatePlayer({
+        guildId: this.guildId,
+        noReplace: false,
+        playerOptions
+      });
+      if (player?.track)
+        this.shoukaku.track = player.track?.encoded;
+      else {
+        this.emit(Events.PlayerResolveError, this, current, errorMessage);
+        this.emit(Events.Debug, `Player ${this.guildId} resolve error: ${errorMessage}`);
+        this.queue.current = null;
+        this.queue.size ? await this.play() : this.emit(Events.PlayerEmpty, this);
+        return this;
+      }
+      if (playerOptions.paused) this.shoukaku.paused = playerOptions.paused;
+      if (playerOptions.position) this.shoukaku.position = playerOptions.position;
+      if (playerOptions.volume) this.shoukaku.filters.volume = playerOptions.volume;
+    }
+
     const resolveResult = await current.resolve({ player: this as KazagumoPlayer }).catch((e) => {
       errorMessage = e.message;
       return null;
@@ -302,7 +327,7 @@ export class KazagumoPlayer {
     if (options) playOptions.options = { ...options, noReplace: false };
     else playOptions.options = { noReplace: false };
 
-    this.shoukaku.playTrack(playOptions);
+    await this.shoukaku.playTrack(playOptions);
 
     return this;
   }

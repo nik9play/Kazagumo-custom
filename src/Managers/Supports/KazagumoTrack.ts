@@ -100,9 +100,8 @@ export class KazagumoTrack {
   setKazagumo(kazagumo: Kazagumo): KazagumoTrack {
     this.kazagumo = kazagumo;
     if (this.sourceName === 'youtube' && this.identifier)
-      this.thumbnail = `https://img.youtube.com/vi/${this.identifier}/${
-        kazagumo.KazagumoOptions.defaultYoutubeThumbnail ?? 'hqdefault'
-      }.jpg`;
+      this.thumbnail = `https://img.youtube.com/vi/${this.identifier}/${kazagumo.KazagumoOptions.defaultYoutubeThumbnail ?? 'hqdefault'
+        }.jpg`;
 
     return this;
   }
@@ -113,9 +112,8 @@ export class KazagumoTrack {
   get readyToPlay(): boolean {
     return (
       this.kazagumo !== undefined &&
-      !!this.encoded &&
+      (!!this.encoded || !!this.identifier) &&
       !!this.sourceName &&
-      !!this.identifier &&
       !!this.author &&
       !!this.length &&
       !!this.title &&
