@@ -166,9 +166,11 @@ export interface PlayOptions {
 
 export enum State {
   CONNECTING,
+  NEARLY,
   CONNECTED,
+  RECONNECTING,
   DISCONNECTING,
-  DISCONNECTED,
+  DISCONNECTED
 }
 
 export enum PlayerState {
